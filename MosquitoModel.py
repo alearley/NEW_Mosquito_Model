@@ -1,8 +1,8 @@
-
 import random
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
+import math
 
 class MosquitoSim:
   #Constructor
@@ -27,17 +27,24 @@ class MosquitoSim:
     else: return round(number)
 
   def randomrate (self,value):
-    total = 0
+    numMosquitos = np.random.normal(value, (math.sqrt(value*0.25)*self.pervar))
+    if numMosquitos < 0:
+      return 0
+    elif numMosquitos > 2*value:
+      return 2*value
+    else:
+      return numMosquitos
+    '''total = 0
     for b in range (0, 2*int(value)):
       c = random.randint(0,1)
       total += c
-    return (total)
+    return (total)'''
 
   def distrmos(self,loc0,inputlist):
     if self.randomness == "ideal":
       mosmoving = self.locationList[loc0]*self.rate*self.pervar
     else:
-      mosmoving = self.randomrate(self.rounddecimal(self.locationList[loc0]*self.rate*self.pervar))
+      mosmoving = self.randomrate(self.locationList[loc0]*self.rate)
     self.locationList[loc0] -= mosmoving
     edlist = list(self.netgraph.adj[loc0])
     if len(edlist) > 0:
@@ -107,5 +114,3 @@ sim1 = MosquitoSim(150,4/100,1,[500,0],'ideal', h)
 
 sim.simulateAndGraph()
 sim1.simulateAndGraph()
-
-#this is a comment
