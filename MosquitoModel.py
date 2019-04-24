@@ -35,7 +35,7 @@ class MosquitoSim:
 
   def distrmos(self,loc0,inputlist):
     if self.randomness == "ideal":
-      mosmoving = self.rounddecimal(self.locationList[loc0]*self.rate*self.pervar)
+      mosmoving = self.locationList[loc0]*self.rate*self.pervar
     else:
       mosmoving = self.randomrate(self.rounddecimal(self.locationList[loc0]*self.rate*self.pervar))
     self.locationList[loc0] -= mosmoving
@@ -43,7 +43,7 @@ class MosquitoSim:
     if len(edlist) > 0:
         if self.randomness == "ideal":
           for ed in edlist:
-            inputlist[ed] += self.rounddecimal(mosmoving/(len(edlist)))
+            inputlist[ed] += mosmoving/(len(edlist))
         else:
           for mos in range (0,mosmoving):
             rand = random.randint(0,len(edlist)-1)
