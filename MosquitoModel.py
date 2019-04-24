@@ -95,9 +95,9 @@ h.add_edges_from([(0,1),(1,0)])
 
 '''
 sims = [MosquitoSim(150,i/100,1,[10000,0,0,0],'random') for i in range (20,21)] #last input should be 'random' or 'ideal'
-#for sim in sims: #I still don't understand exactly why we're doing this. It seems to be running these portions over again.
-  #sim.simmos()
-  #sim.graph()
+for sim in sims: 
+  sim.simmos()
+  sim.graph()
 '''
   
  
