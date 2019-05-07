@@ -6,7 +6,7 @@ import networkx as nx
 
 class MosquitoSim:
     #Constructor
-    def __init__(self, days, rate, var, initlocationList, randomness, netgraph):
+    def __init__(self, days, rate, var, initlocationList, model, netgraph):
         if len(initlocationList) != len(netgraph):
             raise Exception('Error: the number of notes and initial locations don\'t match')
 
@@ -14,7 +14,7 @@ class MosquitoSim:
         self.rate = rate
         self.var = var
         self.locationList = initlocationList
-        self.randomness = randomness
+        self.model = model
         self.netgraph = netgraph
 
         self.xs = []
@@ -26,10 +26,10 @@ class MosquitoSim:
 
     def distrmos(self,loc_idx,changemoslocs):
         num_mos = self.locationList[loc_idx]
-        if self.randomness == "deterministic":
-            mosmoving = num_mos*self.rate*self.var
-        elif self.randomness == "stochastic":
-            mosmoving = np.random.binomial(num_mos, self.rate)
+        if self.model == 'deterministic':
+            mosmoving = num_mos*self.rate
+        elif self.model == 'stochastic':
+            mosmoving = np.random.binomial(self.var*num_mos, (1/self.var)*self.rate)
         else: raise Exception('Error: Please input deterministic or stochastic')
             
 
@@ -38,10 +38,10 @@ class MosquitoSim:
         edlist = list(self.netgraph.adj[loc_idx])
         num_neighbors = len(edlist)
         if num_neighbors > 0:
-            if self.randomness == "deterministic":
+            if self.model == 'deterministic':
                 for ed in edlist:
                     changemoslocs[ed] += mosmoving/num_neighbors
-            elif self.randomness == "stochastic":
+            elif self.model == 'stochastic':
                 counts = np.random.multinomial(mosmoving, [1.0/num_neighbors]*num_neighbors)
                 for i in range(num_neighbors):
                     dest = edlist[i]
@@ -65,8 +65,13 @@ class MosquitoSim:
 
 
     def graph(self):
-        print ("Days:", self.days)
-        print ("Rate:", self.rate)
+        print ('Days:', self.days)
+        print ('Rate:', self.rate)
+        if self.var != 1:
+            if self.model == 'deterministic':
+                print ('Note- Changing the variability doesn\'t affect deterministic models')
+            elif self.model == 'stochastic':
+                print('Variability factor:', self.var)
         for i in range(len(self.locationList)): plt.plot(np.array(self.xs),np.array(self.ys[i]),label = i)
         plt.xlabel('Days')
         plt.ylabel('Number of mosquitos')
@@ -94,8 +99,8 @@ for sim in sims:
   sim.graph()
 '''
 
-sim = MosquitoSim(10, 0.05, 1, [30,23,45,23], 'stochastic', g)
-sim1 = MosquitoSim(25, 0.04, 1, [234,574,326], 'deterministic', h)
+sim = MosquitoSim(100, 0.05, 0.05, [50,100,150,200], 'stochastic', g)
+sim1 = MosquitoSim(100, 0.05, 0.05, [50,100,150,200], 'deterministic', g)
 
 sim.simulateAndGraph()
 sim1.simulateAndGraph()
