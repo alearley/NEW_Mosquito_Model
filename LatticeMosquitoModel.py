@@ -7,10 +7,14 @@ import networkx as nx
 
 class MosquitoSim:
     #Constructor
-    def __init__(self, days, rate, var, initlocationList, model, horiz, vert):
-        if len(initlocationList) != (horiz*vert):
-            raise Exception('Error: the number of nodes and initial locations don\'t match')
-
+    def __init__(self, days, rate, var, initlocationList, model, horiz = 1, vert = 1, growth = 0):
+        try:
+            if len(initlocationList) != (horiz*vert):
+                raise Exception('Error: the number of nodes and initial locations don\'t match')
+        except TypeError:
+            if len(initlocationList) != len(horiz):
+                raise Exception('Error: the number of nodes and initial locations don\'t match')
+                
         self.days = days
         self.rate = rate
         self.var = var
@@ -18,22 +22,29 @@ class MosquitoSim:
         self.model = model
         self.horiz = horiz
         self.vert = vert
+        self.growth = growth
 
         self.xs = []
         self.ys = []
+        
 
 #Helper Methods
     def createLatt(self):
         latt = nx.Graph()
-        for vPoint in range(self.vert):
-            for hPoint in range(self.horiz - 1):
-                firstCor= (vPoint * self.horiz) + hPoint
-                latt.add_edges_from([(firstCor,firstCor+1)])
-        for vPoint in range(self.vert-1):
-            for hPoint in range(self.horiz):
-                firstCor= (vPoint * self.horiz) + hPoint
-                latt.add_edges_from([(firstCor,firstCor+self.horiz)])
-        return(latt)
+        try:
+            testingint = int(self.horiz)
+            for vPoint in range(self.vert):
+                for hPoint in range(self.horiz - 1):
+                    firstCor= (vPoint * self.horiz) + hPoint
+                    latt.add_edges_from([(firstCor,firstCor+1)])
+            for vPoint in range(self.vert-1):
+                for hPoint in range(self.horiz):
+                    firstCor= (vPoint * self.horiz) + hPoint
+                    latt.add_edges_from([(firstCor,firstCor+self.horiz)])
+            return(latt)
+        except TypeError:
+            latt = self.horiz
+            return(latt)
         #print (nx.info(latt))
         #nx.draw(latt, with_labels = True)
         
@@ -77,7 +88,7 @@ class MosquitoSim:
             for i in loc_idxs:
                 self.distrmos(i,changemoslocs,latt)
             for i in loc_idxs:
-                self.locationList[i]+=changemoslocs[i]
+                self.locationList[i]+= (changemoslocs[i]+ self.growth)
                 self.ys[i].append(self.locationList[i])
 
 
@@ -100,22 +111,19 @@ class MosquitoSim:
         self.simmos()
         self.graph()
 
-#g=nx.Graph()
-#g.add_edges_from([(0,1),(1,2),(2,3),(3,0)])
-#g.add_node(0)
+'''g=nx.Graph()
+g.add_edges_from([(0,1),(1,2),(2,0)])
+g.add_node(0)'''
 
+'''print (nx.info(g))
+#nx.draw(g, with_labels = True)'''
 
-#print (nx.info(g))
-#nx.draw(g, with_labels = True)
-
-'''
-sims = [MosquitoSim(150,i/100,1,[10000,0,0,0],'stochastic') for i in range (20,21)] #last input should be 'stochastic' or 'deterministic'
+'''sims = [MosquitoSim(150,i/100,1,[10000,0,0,0],'stochastic') for i in range (20,21)] #last input should be 'stochastic' or 'deterministic'
 for sim in sims: 
   sim.simmos()
-  sim.graph()
-'''
+  sim.graph()'''
 
-sim = MosquitoSim(100, 0.05, 0.05, [50, 50, 150, 50], 'deterministic', 2, 2)
+sim = MosquitoSim(days = 100, rate = 0.05, var = 0.05, initlocationList = [50, 100, 20, 30], model = 'deterministic', horiz = 2, vert = 2)
 #sim1 = MosquitoSim(100, 0.05, 0.05, [50,100,150,200], 'deterministic', g)
 
 sim.simulateAndGraph()
